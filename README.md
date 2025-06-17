@@ -52,6 +52,10 @@ The build badge above is linked to this CI process.
  export RCLONE_CONFIG_PASS=your_password_here
  ```
  
+ or
+ 
+`rclone-options` can be used to pass --password-command
+ 
     or prefix `git annex` command with the environment variable:
  
  ```
