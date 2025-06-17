@@ -75,7 +75,12 @@ The build badge above is linked to this CI process.
     * `frankencase` - A two-level lower case directory hierarchy is used (using git-annex's DIRHASH format, with all characters translated to lower case)
        * This layout should not be used except if you already have a legacy remote using this layout and do not wish to migrate.
        * This was the only available layout in early versions of this remote, up to release v0.1.
-5. Add a remote for the provider. This example:
+5. `rclone_options` can be used to pass addition options to rclone for e.g. rclone_options="--ask-password --syslog"
+    or when enabling on an existing remote:
+```
+git annex initremote myacdremote rclone_options="--ask-password --syslog"
+```
+6. Add a remote for the provider. This example:
 
    * Adds a git-annex remote called `myacdremote`
    * Stores your files in an rclone remote configured with the name `acd`
@@ -83,7 +88,7 @@ The build badge above is linked to this CI process.
    * Stores your files in a folder/prefix called `git-annex`:
 
 ```
-git annex initremote myacdremote type=external externaltype=rclone target=acd prefix=git-annex chunk=50MiB encryption=shared mac=HMACSHA512 rclone_layout=lower
+git annex initremote myacdremote type=external externaltype=rclone target=acd prefix=git-annex chunk=50MiB encryption=shared mac=HMACSHA512 rclone_layout=lower rclone_options="--ask-password --syslog"
 ```
 
 The initremote command calls out to GPG and can hang if a machine has insufficient entropy. To debug issues, use the `--debug` flag, i.e. `git-annex initremote --debug`.
