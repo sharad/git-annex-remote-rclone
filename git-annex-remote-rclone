@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 # emacs: -*- mode: python; tab-width: 4; indent-tabs-mode: t -*-
 # ex: set sts=4 ts=4 sw=4 noet:
 #
@@ -201,6 +201,10 @@ while read -r line; do
 	line="${line%$'\r'}"
 	# shellcheck disable=SC2086
 	set -- $line
+
+	echo COMMAND=\[ $* \] >> /tmp/rclone-annex.log
+
+
 	case "$1" in
 		INITREMOTE)
 			# Do anything necessary to create resources
@@ -310,6 +314,73 @@ while read -r line; do
 
 			do_remove "$key" "$LOC$key"
 		;;
+
+		EXPORTSUPPORTED)
+			# echo EXPORTSUPPORTED-FAILURE
+			# echo EXPORTSUPPORTED-SUCCESS 
+			echo EXPORTSUPPORTED-SUCCESS
+		;;
+		EXPORT) # Name
+		    name="$1"
+		;;
+		TRANSFEREXPORT) # STORE|RETRIEVE Key File
+		    op="$2"
+			key="$3"
+			shift 3
+			file="$*"
+			# case "$op" in
+			# 	STORE)
+			# 		# Store the file to a location
+			# 		# based on the key.
+			# 		# XXX when at all possible, send PROGRESS
+			# 		calclocation "$key"
+			# 		if [ ! -e "$file" ]; then
+			# 			echo TRANSFER-FAILURE STORE "$key" "asked to store non-existent file $file"
+			# 		else
+			# 			if rclone_progress copy "$file" "$LOC"; then
+			# 				echo TRANSFER-SUCCESS STORE "$key"
+			# 			else
+			# 				echo TRANSFER-FAILURE STORE "$key"
+			# 			fi
+			# 		fi
+			# 	;;
+			# 	RETRIEVE)
+			# 		# Retrieve from a location based on
+			# 		# the key, outputting to the file.
+			# 		# XXX when easy to do, send PROGRESS
+			# 		calclocation "$key"
+			# 		# http://stackoverflow.com/questions/31396985/why-is-mktemp-on-os-x-broken-with-a-command-that-worked-on-linux
+			# 		if GA_RC_TEMP_DIR=$(mktemp -d "${TMPDIR:-/tmp}/rclone-annex-tmp.XXXXXXXXX") &&
+			# 			rclone_progress copy "$LOC$key" "$GA_RC_TEMP_DIR" &&
+			# 			mv "$GA_RC_TEMP_DIR/$key" "$file" &&
+			# 			rmdir "$GA_RC_TEMP_DIR"; then
+			# 			echo TRANSFER-SUCCESS RETRIEVE "$key"
+			# 		else
+			# 			echo TRANSFER-FAILURE RETRIEVE "$key"
+			# 		fi
+			# 	;;
+			# esac
+		    echo TRANSFER-FAILURE
+			# echo TRANSFER-SUCCESS
+		;;
+        CHECKPRESENTEXPORT) # Key
+            key="$1"
+			# do_checkpresent "$key" "$LOC$key"
+		    echo CHECKPRESENT-FAILURE
+			# echo CHECKPRESENT-SUCCESS, CHECKPRESENT-FAILURE, or CHECKPRESENT-UNKNOWN.
+        ;;
+		REMOVEEXPORT) # Key
+            key="$1"
+			# do_remove "$key" "$LOC$key"
+            echo REMOVE-FAILURE
+			# echo REMOVE-SUCCESS or REMOVE-FAILURE.
+        ;;
+		RENAMEEXPORT) # Key NewName
+            key="$1"
+			newname="$2"
+			echo RENAMEEXPORT-FAILURE
+			# echo RENAMEEXPORT-SUCCESS or with RENAMEEXPORT-FAILURE
+        ;;
 		*)
 			# The requests listed above are all the ones
 			# that are required to be supported, so it's fine
