@@ -321,7 +321,7 @@ while read -r line; do
 			echo EXPORTSUPPORTED-SUCCESS
 		;;
 		EXPORT) # Name
-		    name="$1"
+		    name="$2"
 		;;
 		TRANSFEREXPORT) # STORE|RETRIEVE Key File
 		    op="$2"
