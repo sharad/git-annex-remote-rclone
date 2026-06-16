@@ -359,46 +359,46 @@ while read -r line; do
 			      fi
 			  ;;
 			  RETRIEVE)
-				  # Retrieve from a location based on
-				  # the key, outputting to the file.
-				  # XXX when easy to do, send PROGRESS
-				  # calclocation "$key"
-				  # # http://stackoverflow.com/questions/31396985/why-is-mktemp-on-os-x-broken-with-a-command-that-worked-on-linux
-				  # if GA_RC_TEMP_DIR=$(mktemp -d "${TMPDIR:-/tmp}/rclone-annex-tmp.XXXXXXXXX") &&
-				  #     rclone_progress copy "$LOC$key" "$GA_RC_TEMP_DIR" &&
-				  #     mv "$GA_RC_TEMP_DIR/$key" "$file" &&
-				  #     rmdir "$GA_RC_TEMP_DIR"; then
-				  #     echo TRANSFER-SUCCESS RETRIEVE "$key"
-				  # else
-				  #     echo TRANSFER-FAILURE RETRIEVE "$key"
-				  # fi
-				  echo skipping >> /tmp/rclone-annex.log
-				  echo TRANSFER-FAILURE
-			  ;;
-			esac
-			# echo TRANSFER-FAILURE
+                  # Retrieve from a location based on
+                  # the key, outputting to the file.
+                  # XXX when easy to do, send PROGRESS
+                  # calclocation "$key"
+                  # # http://stackoverflow.com/questions/31396985/why-is-mktemp-on-os-x-broken-with-a-command-that-worked-on-linux
+                  # if GA_RC_TEMP_DIR=$(mktemp -d "${TMPDIR:-/tmp}/rclone-annex-tmp.XXXXXXXXX") &&
+                  #     rclone_progress copy "$LOC$key" "$GA_RC_TEMP_DIR" &&
+                  #     mv "$GA_RC_TEMP_DIR/$key" "$file" &&
+                  #     rmdir "$GA_RC_TEMP_DIR"; then
+                  #     echo TRANSFER-SUCCESS RETRIEVE "$key"
+                  # else
+                  #     echo TRANSFER-FAILURE RETRIEVE "$key"
+                  # fi
+                  echo skipping >> /tmp/rclone-annex.log
+                  echo TRANSFER-FAILURE
+              ;;
+            esac
+            # echo TRANSFER-FAILURE
 			# # echo TRANSFER-SUCCESS
 		;;
         CHECKPRESENTEXPORT) # Key
             key="$2"
-			calcexport_location "$key"
-			do_checkpresent "$key" "$LOC"
-			# echo CHECKPRESENT-FAILURE
-			# echo CHECKPRESENT-SUCCESS, CHECKPRESENT-FAILURE, or CHECKPRESENT-UNKNOWN.
+            calcexport_location "$key"
+            do_checkpresent "$key" "$LOC"
+            # echo CHECKPRESENT-FAILURE
+            # echo CHECKPRESENT-SUCCESS, CHECKPRESENT-FAILURE, or CHECKPRESENT-UNKNOWN.
         ;;
 		REMOVEEXPORT) # Key
             key="$2"
-			calcexport_location "$key"
-			do_remove "$key" "$LOC"
+            calcexport_location "$key"
+            do_remove "$key" "$LOC"
 			# echo REMOVE-FAILURE
 			# echo REMOVE-SUCCESS or REMOVE-FAILURE.
         ;;
 		RENAMEEXPORT) # Key NewName
             key="$1"
-			newname="$2"
-			echo RENAMEEXPORT key="$key" newname="$newname" >> /tmp/rclone-annex.log
-			echo RENAMEEXPORT-FAILURE
-			# echo RENAMEEXPORT-SUCCESS or with RENAMEEXPORT-FAILURE
+            newname="$2"
+            echo RENAMEEXPORT key="$key" newname="$newname" >> /tmp/rclone-annex.log
+            echo RENAMEEXPORT-FAILURE
+            # echo RENAMEEXPORT-SUCCESS or with RENAMEEXPORT-FAILURE
         ;;
 		*)
 			# The requests listed above are all the ones
