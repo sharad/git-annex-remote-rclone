@@ -77,6 +77,16 @@ calclocation () {
 	esac
 }
 
+calcexport_location () {
+	if [ "x" = "x$EXPORT_FILE_LOC" ]
+	then
+	echo No EXPORT file.
+	exit 1
+	fi
+
+	LOC="$REMOTE_TARGET:$REMOTE_PREFIX/$EXPORT_FILE_LOC"
+}
+
 # Asks for some value, and stores it in RET
 ask () {
 	echo "$1" "$2"
@@ -321,63 +331,72 @@ while read -r line; do
 			echo EXPORTSUPPORTED-SUCCESS
 		;;
 		EXPORT) # Name
-		    name="$1"
+		    shift
+		    EXPORT_FILE_LOC="$*"
 		;;
 		TRANSFEREXPORT) # STORE|RETRIEVE Key File
 		    op="$2"
 			key="$3"
 			shift 3
 			file="$*"
-			# case "$op" in
-			# 	STORE)
-			# 		# Store the file to a location
-			# 		# based on the key.
-			# 		# XXX when at all possible, send PROGRESS
-			# 		calclocation "$key"
-			# 		if [ ! -e "$file" ]; then
-			# 			echo TRANSFER-FAILURE STORE "$key" "asked to store non-existent file $file"
-			# 		else
-			# 			if rclone_progress copy "$file" "$LOC"; then
-			# 				echo TRANSFER-SUCCESS STORE "$key"
-			# 			else
-			# 				echo TRANSFER-FAILURE STORE "$key"
-			# 			fi
-			# 		fi
-			# 	;;
-			# 	RETRIEVE)
-			# 		# Retrieve from a location based on
-			# 		# the key, outputting to the file.
-			# 		# XXX when easy to do, send PROGRESS
-			# 		calclocation "$key"
-			# 		# http://stackoverflow.com/questions/31396985/why-is-mktemp-on-os-x-broken-with-a-command-that-worked-on-linux
-			# 		if GA_RC_TEMP_DIR=$(mktemp -d "${TMPDIR:-/tmp}/rclone-annex-tmp.XXXXXXXXX") &&
-			# 			rclone_progress copy "$LOC$key" "$GA_RC_TEMP_DIR" &&
-			# 			mv "$GA_RC_TEMP_DIR/$key" "$file" &&
-			# 			rmdir "$GA_RC_TEMP_DIR"; then
-			# 			echo TRANSFER-SUCCESS RETRIEVE "$key"
-			# 		else
-			# 			echo TRANSFER-FAILURE RETRIEVE "$key"
-			# 		fi
-			# 	;;
-			# esac
-		    echo TRANSFER-FAILURE
-			# echo TRANSFER-SUCCESS
+
+			echo TRANSFEREXPORT op="$op" key="$key" file="$file" >> /tmp/rclone-annex.log
+
+			case "$op" in
+			  STORE)
+			      # Store the file to a location
+			      # based on the key.
+			      # XXX when at all possible, send PROGRESS
+			      calcexport_location "$key"
+			      if [ ! -e "$file" ]; then
+			          echo TRANSFER-FAILURE STORE "$key" "asked to store non-existent file $file"
+			      else
+			          if rclone_progress copy "$file" "$LOC"; then
+			              echo TRANSFER-SUCCESS STORE "$key"
+			          else
+			              echo TRANSFER-FAILURE STORE "$key"
+			          fi
+			      fi
+			  ;;
+			  RETRIEVE)
+				  # Retrieve from a location based on
+				  # the key, outputting to the file.
+				  # XXX when easy to do, send PROGRESS
+				  # calclocation "$key"
+				  # # http://stackoverflow.com/questions/31396985/why-is-mktemp-on-os-x-broken-with-a-command-that-worked-on-linux
+				  # if GA_RC_TEMP_DIR=$(mktemp -d "${TMPDIR:-/tmp}/rclone-annex-tmp.XXXXXXXXX") &&
+				  #     rclone_progress copy "$LOC$key" "$GA_RC_TEMP_DIR" &&
+				  #     mv "$GA_RC_TEMP_DIR/$key" "$file" &&
+				  #     rmdir "$GA_RC_TEMP_DIR"; then
+				  #     echo TRANSFER-SUCCESS RETRIEVE "$key"
+				  # else
+				  #     echo TRANSFER-FAILURE RETRIEVE "$key"
+				  # fi
+				  echo skipping >> /tmp/rclone-annex.log
+				  echo TRANSFER-FAILURE
+			  ;;
+			esac
+			# echo TRANSFER-FAILURE
+			# # echo TRANSFER-SUCCESS
 		;;
         CHECKPRESENTEXPORT) # Key
-            key="$1"
-			# do_checkpresent "$key" "$LOC$key"
-		    echo CHECKPRESENT-FAILURE
+            key="$2"
+			calcexport_location "$key"
+			do_checkpresent "$key" "$LOC"
+			# echo CHECKPRESENT-FAILURE
 			# echo CHECKPRESENT-SUCCESS, CHECKPRESENT-FAILURE, or CHECKPRESENT-UNKNOWN.
         ;;
 		REMOVEEXPORT) # Key
-            key="$1"
-			# do_remove "$key" "$LOC$key"
-            echo REMOVE-FAILURE
+            key="$2"
+			calcexport_location "$key"
+			do_remove "$key" "$LOC"
+			# echo REMOVE-FAILURE
 			# echo REMOVE-SUCCESS or REMOVE-FAILURE.
         ;;
 		RENAMEEXPORT) # Key NewName
             key="$1"
 			newname="$2"
+			echo RENAMEEXPORT key="$key" newname="$newname" >> /tmp/rclone-annex.log
 			echo RENAMEEXPORT-FAILURE
 			# echo RENAMEEXPORT-SUCCESS or with RENAMEEXPORT-FAILURE
         ;;
